@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Input } from "@/components/ui/input";
 import { PlusCircle, Search } from "lucide-react";
 import { api } from "@/convex/_generated/api";
-import { useApiQuery } from "@/hooks/use-api";
+import { useQuery } from "convex/react";
 import { Id } from "@/convex/_generated/dataModel";
 
 interface Client {
@@ -21,7 +21,7 @@ interface Client {
 
 export default function ClientsPage() {
   const router = useRouter();
-  const { data: clients = [] } = useApiQuery(api.clients.list) as { data: Client[] };
+  const { data: clients = [] } = useQuery(api.clients.list) as { data: Client[] };
   const [searchQuery, setSearchQuery] = useState("");
 
   // Filter clients based on search query

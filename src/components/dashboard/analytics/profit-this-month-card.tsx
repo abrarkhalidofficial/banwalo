@@ -1,12 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useApiQuery } from "@/hooks/useApiQuery";
+import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { formatCurrency } from "@/lib/utils";
 
 export function ProfitThisMonthCard() {
-  const profitThisMonth = useApiQuery<typeof api.analytics.getProfitThisMonth, void, number>(
-    api.analytics.getProfitThisMonth
-  );
+  const profitThisMonth = useQuery(api.analytics.getProfitThisMonth);
 
   return (
     <Card>

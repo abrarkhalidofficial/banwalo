@@ -1,4 +1,4 @@
-import { useApiQuery } from "@/hooks/useApiQuery";
+import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { subMonths, startOfMonth, endOfMonth, format } from "date-fns";
@@ -16,7 +16,7 @@ export function ExpenseTrendsChart() {
   const start = startOfMonth(oneMonthAgo).getTime();
   const end = endOfMonth(now).getTime();
 
-  const expenses = useApiQuery<typeof api.analytics.getExpensesOverTime, { start: number; end: number }, Expense[]>(
+  const expenses = useQuery(
     api.analytics.getExpensesOverTime,
     { start, end }
   );

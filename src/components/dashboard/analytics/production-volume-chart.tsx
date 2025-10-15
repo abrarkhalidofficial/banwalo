@@ -1,4 +1,4 @@
-import { useApiQuery } from "@/hooks/useApiQuery";
+import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { subMonths, startOfMonth, endOfMonth, format } from "date-fns";
@@ -15,11 +15,10 @@ export function ProductionVolumeChart() {
   const start = startOfMonth(oneMonthAgo).getTime();
   const end = endOfMonth(now).getTime();
 
-  const productions = useApiQuery<
-    typeof api.analytics.getProductionVolumeOverTime,
-    { start: number; end: number },
-    Production[]
-  >(api.analytics.getProductionVolumeOverTime, { start, end });
+  const productions = useQuery(
+    api.analytics.getProductionVolumeOverTime,
+    { start, end }
+  );
 
   if (productions === undefined) {
     return <Card><CardHeader><CardTitle>Production Volume</CardTitle></CardHeader><CardContent>Loading...</CardContent></Card>;

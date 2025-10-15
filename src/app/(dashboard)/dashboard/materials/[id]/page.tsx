@@ -20,7 +20,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { api } from "@/convex/_generated/api";
-import { useApiQuery } from "@/hooks/use-api";
+import { useQuery } from "convex/react";
 import { Id } from "@/convex/_generated/dataModel";
 
 // Helper function to format dates
@@ -69,9 +69,9 @@ export default function MaterialDetailPage() {
   const router = useRouter();
   const materialId = params.id as Id<"materials">;
   
-  const { data: material } = useApiQuery(api.materials.getById, { id: materialId }) as { data: Material | null };
-  const { data: stockEntries = [] } = useApiQuery(api.stockEntries.getByMaterial, { materialId }) as { data: StockEntry[] };
-  const { data: usageHistory = [] } = useApiQuery(api.materials.getMaterialUsageHistory, { materialId }) as { data: UsageHistory[] };
+  const { data: material } = useQuery(api.materials.getById, { id: materialId }) as { data: Material | null };
+  const { data: stockEntries = [] } = useQuery(api.stockEntries.getByMaterial, { materialId }) as { data: StockEntry[] };
+  const { data: usageHistory = [] } = useQuery(api.materials.getMaterialUsageHistory, { materialId }) as { data: UsageHistory[] };
   const deleteMaterial = useMutation(api.materials.remove);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
 

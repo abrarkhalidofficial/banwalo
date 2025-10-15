@@ -8,7 +8,7 @@ import ConsumptionLog from "@/components/dashboard/consumption-log";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { useApiQuery } from "@/hooks/useApiQuery";
+import { useQuery } from "convex/react";
 
 // Helper function to format date
 const formatDate = (timestamp: number) => {
@@ -50,15 +50,15 @@ export default function StockEntryDetailPage() {
   const router = useRouter();
   const stockEntryId = params.id as Id<"stockEntries">;
   
-  const { data: stockEntry } = useApiQuery<{ id: Id<"stockEntries"> }, StockEntry | null>(
+  const stockEntry = useQuery(
     api.stockEntries.getById,
     { id: stockEntryId }
   );
 
-  const { data: consumptionHistory = [] } = useApiQuery<{ stockEntryId: Id<"stockEntries"> }, ConsumptionHistory[]>(
+  const consumptionHistory = useQuery(
     api.stockEntries.getConsumptionHistory,
     { stockEntryId }
-  );
+  ) ?? [];
   
   if (!stockEntry) {
     return (

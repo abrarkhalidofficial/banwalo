@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { PlusCircle, Package, AlertTriangle } from "lucide-react";
 import { api } from "@/convex/_generated/api";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useApiQuery } from "@/hooks/use-api";
+import { useQuery } from "convex/react";
 import { Id } from "@/convex/_generated/dataModel";
 
 interface Material {
@@ -41,8 +41,8 @@ export default function MaterialsPage() {
   const router = useRouter();
   const [materialSearchTerm, setMaterialSearchTerm] = useState<string>("");
   const [stockSearchTerm, setStockSearchTerm] = useState<string>("");
-  const { data: materials = [] } = useApiQuery(api.materials.list) as { data: Material[] };
-  const { data: stockEntries = [] } = useApiQuery(api.stockEntries.list) as { data: StockEntry[] };
+  const { data: materials = [] } = useQuery(api.materials.list) as { data: Material[] };
+  const { data: stockEntries = [] } = useQuery(api.stockEntries.list) as { data: StockEntry[] };
 
   const formatDate = (timestamp: number): string => {
     return new Date(timestamp).toLocaleDateString();

@@ -12,7 +12,7 @@ import { ArrowLeft } from "lucide-react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { useApiQuery } from "@/hooks/useApiQuery";
+import { useQuery } from "convex/react";
 import { toast } from "sonner";
 
 // Define types for stock entries
@@ -38,7 +38,7 @@ interface FormData {
 
 export default function ConsumeStockPage() {
   const router = useRouter();
-  const { data: stockEntries = [] } = useApiQuery<void, StockEntry[]>(api.stockEntries.list);
+  const { data: stockEntries = [] } = useQuery(api.stockEntries.list);
   const consumeStock = useMutation(api.stockEntries.consumeStock);
   
   const [formData, setFormData] = useState<FormData>({

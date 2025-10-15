@@ -1,4 +1,4 @@
-import { useApiQuery } from "@/hooks/useApiQuery";
+import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils";
@@ -15,15 +15,9 @@ interface InventoryOverview {
 }
 
 export function InventoryOverviewCard() {
-  const totalMaterials = useApiQuery<typeof api.analytics.getTotalMaterials, void, number>(
-    api.analytics.getTotalMaterials
-  );
-  const totalStockValue = useApiQuery<typeof api.analytics.getTotalStockValue, void, number>(
-    api.analytics.getTotalStockValue
-  );
-  const inventoryOverview = useApiQuery<typeof api.analytics.getInventoryOverview, void, InventoryOverview>(
-    api.analytics.getInventoryOverview
-  );
+  const totalMaterials = useQuery(api.analytics.getTotalMaterials);
+  const totalStockValue = useQuery(api.analytics.getTotalStockValue);
+  const inventoryOverview = useQuery(api.analytics.getInventoryOverview);
 
   if (inventoryOverview === undefined) {
     return <Card><CardHeader><CardTitle>Inventory Overview</CardTitle></CardHeader><CardContent>Loading...</CardContent></Card>;

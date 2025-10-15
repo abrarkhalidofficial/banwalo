@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useApiQuery } from "@/hooks/useApiQuery";
+import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 
@@ -28,11 +28,10 @@ const formatDate = (timestamp: number) => {
 };
 
 export default function ConsumptionLog({ stockEntryId }: { stockEntryId: Id<"stockEntries"> }) {
-  const consumptionLog = useApiQuery<
-    typeof api.stockEntries.getConsumptionHistory,
-    { stockEntryId: Id<"stockEntries"> },
-    ConsumptionRecord[]
-  >(api.stockEntries.getConsumptionHistory, { stockEntryId });
+  const consumptionLog = useQuery(
+    api.stockEntries.getConsumptionHistory,
+    { stockEntryId }
+  );
 
   return (
     <Card className="mt-6">

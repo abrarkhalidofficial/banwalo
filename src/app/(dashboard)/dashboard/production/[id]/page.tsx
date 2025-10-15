@@ -11,7 +11,7 @@ import { ArrowLeft, Edit, Trash2 } from "lucide-react";
 import Link from "next/link";
 import React, { useState } from "react";
 import { Id } from "@/convex/_generated/dataModel";
-import { useApiQuery } from "@/hooks/useApiQuery";
+import { useQuery } from "convex/react";
 import { toast } from "react-hot-toast";
 import {
   AlertDialog,
@@ -94,7 +94,7 @@ export default function ProductionDetailsPage() {
   const params = useParams();
   const id = params.id as Id<"productions">;
   
-  const production = useApiQuery(api.productions.get, { id });
+  const production = useQuery(api.productions.get, { id });
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const deleteProduction = useMutation(api.productions.remove);
 

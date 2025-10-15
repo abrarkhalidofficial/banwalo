@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PlusCircle, Search } from "lucide-react";
-import { useApiQuery } from "@/hooks/useApiQuery";
+import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { useEffect, useMemo, useRef } from "react";
@@ -50,7 +50,7 @@ const formatDate = (timestamp?: number) => {
 
 export default function ProductionPage() {
   const router = useRouter();
-  const productions = useApiQuery(api.productions.list) || [];
+  const productions = useQuery(api.productions.list) || [];
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   // Bulk edit state

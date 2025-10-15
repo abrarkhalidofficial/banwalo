@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Plus, Trash2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useApiQuery } from "@/hooks/useApiQuery";
+import { useQuery } from "convex/react";
 import { toast } from "react-hot-toast";
 
 // Define TypeScript interfaces
@@ -92,9 +92,9 @@ export default function EditProductionPage() {
   const router = useRouter();
   const productionId = params.id as Id<"productions">;
 
-  const production = useApiQuery(api.productions.get, { id: productionId });
-  const clients = useApiQuery(api.clients.list);
-  const materials = useApiQuery(api.materials.list);
+  const production = useQuery(api.productions.get, { id: productionId });
+  const clients = useQuery(api.clients.list);
+  const materials = useQuery(api.materials.list);
 
   const updateProduction = useMutation(api.productions.update);
 

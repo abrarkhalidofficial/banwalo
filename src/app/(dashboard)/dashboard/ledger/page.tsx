@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Input } from "@/components/ui/input";
 import { DatePicker } from "@/components/ui/date-picker";
 import { useMutation } from "convex/react";
-import { useApiQuery } from "@/hooks/use-api";
+import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { toast } from "react-hot-toast";
 import { Id } from "@/convex/_generated/dataModel";
@@ -42,12 +42,12 @@ export default function LedgerPage() {
   const [filterDate, setFilterDate] = useState<Date | undefined>(undefined);
   const [filterCategory, setFilterCategory] = useState("");
 
-  const { data: expenses = [] } = useApiQuery(api.ledger.listExpenses, {
+  const { data: expenses = [] } = useQuery(api.ledger.listExpenses, {
     filterDate: filterDate?.getTime(),
     filterCategory: filterCategory || undefined,
   }) as { data: Expense[] };
 
-  const { data: monthlySummaries = [] } = useApiQuery(api.ledger.getMonthlyExpenseSummaries) as { data: MonthlySummary[] };
+  const { data: monthlySummaries = [] } = useQuery(api.ledger.getMonthlyExpenseSummaries) as { data: MonthlySummary[] };
 
   const createExpense = useMutation(api.ledger.createExpense);
 

@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { PlusCircle, Phone, MapPin, Search } from "lucide-react";
-import { useApiQuery } from "@/hooks/use-api";
+import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 
@@ -23,7 +23,7 @@ interface Supplier {
 
 export default function SuppliersPage() {
   const router = useRouter();
-  const { data: suppliers = [] } = useApiQuery(api.suppliers.list) as { data: Supplier[] };
+  const { data: suppliers = [] } = useQuery(api.suppliers.list) as { data: Supplier[] };
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredSuppliers = suppliers.filter(supplier =>

@@ -9,7 +9,7 @@ import { MostProfitableProductionsCard } from "@/components/dashboard/analytics/
 import { InventoryOverviewCard } from "@/components/dashboard/analytics/inventory-overview-card";
 import { ProductionVolumeChart } from "@/components/dashboard/analytics/production-volume-chart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useApiQuery } from "@/hooks/use-api";
+import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Package, Users, ShoppingBag } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -53,10 +53,10 @@ interface ProfitableProduction {
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { data: materials = [] } = useApiQuery(api.materials.list) as { data: Material[] };
-  const { data: suppliers = [] } = useApiQuery(api.suppliers.list) as { data: Supplier[] };
-  const { data: stockEntries = [] } = useApiQuery(api.stockEntries.list) as { data: StockEntry[] };
-  const { data: mostProfitableProductions = [] } = useApiQuery(
+  const { data: materials = [] } = useQuery(api.materials.list) as { data: Material[] };
+  const { data: suppliers = [] } = useQuery(api.suppliers.list) as { data: Supplier[] };
+  const { data: stockEntries = [] } = useQuery(api.stockEntries.list) as { data: StockEntry[] };
+  const { data: mostProfitableProductions = [] } = useQuery(
     api.analytics.getMostProfitableProductions,
     { limit: 5 }
   ) as { data: ProfitableProduction[] };

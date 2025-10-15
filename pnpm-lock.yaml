@@ -53,6 +53,9 @@ importers:
       convex-helpers:
         specifier: ^0.1.104
         version: 0.1.104(convex@1.28.0(@clerk/clerk-react@5.52.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0))(react@19.1.0)(typescript@5.9.3)(zod@3.25.76)
+      date-fns:
+        specifier: ^4.1.0
+        version: 4.1.0
       lucide-react:
         specifier: ^0.545.0
         version: 0.545.0(react@19.1.0)

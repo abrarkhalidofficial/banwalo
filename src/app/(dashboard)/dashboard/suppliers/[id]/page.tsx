@@ -11,7 +11,7 @@ import { useMutation } from "convex/react";
 import { toast } from "react-hot-toast";
 import { useState } from "react";
 import { Id } from "@/convex/_generated/dataModel";
-import { useApiQuery } from "@/hooks/use-api";
+import { useQuery } from "convex/react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -46,8 +46,8 @@ export default function SupplierDetailPage() {
   const router = useRouter();
   const id = params.id as string;
   
-  const { data: supplier } = useApiQuery(api.suppliers.getById, { id }) as { data: Supplier };
-  const { data: stockEntries = [] } = useApiQuery(api.stockEntries.getBySupplier, { supplierId: id }) as { data: StockEntry[] };
+  const { data: supplier } = useQuery(api.suppliers.getById, { id }) as { data: Supplier };
+  const { data: stockEntries = [] } = useQuery(api.stockEntries.getBySupplier, { supplierId: id }) as { data: StockEntry[] };
   const deleteSupplier = useMutation(api.suppliers.remove);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
 

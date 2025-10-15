@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PlusCircle, AlertTriangle, Search } from "lucide-react";
-import { useApiQuery } from "@/hooks/useApiQuery";
+import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { formatDate } from "@/lib/utils";
 import { Id } from "@/convex/_generated/dataModel";
@@ -37,7 +37,7 @@ type StockStatus = "all" | "Available" | "Low Stock" | "Depleted";
 
 export default function StockPage() {
   const router = useRouter();
-  const { data: stockEntries = [] } = useApiQuery<void, StockEntry[]>(api.stockEntries.list);
+  const { data: stockEntries = [] } = useQuery(api.stockEntries.list);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<StockStatus>("all");
 

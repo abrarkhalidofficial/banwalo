@@ -1,4 +1,4 @@
-import { useApiQuery } from "@/hooks/useApiQuery";
+import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -17,9 +17,7 @@ interface AuditLog {
 }
 
 export function AuditLogPage() {
-  const auditLogs = useApiQuery<typeof api.audit.getAuditLogs, void, AuditLog[]>(
-    api.audit.getAuditLogs
-  );
+  const auditLogs = useQuery(api.audit.getAuditLogs);
 
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">

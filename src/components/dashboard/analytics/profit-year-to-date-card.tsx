@@ -1,12 +1,10 @@
-import { useApiQuery } from "@/hooks/useApiQuery";
+import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils";
 
 export function ProfitYearToDateCard() {
-  const profitYearToDate = useApiQuery<typeof api.analytics.getProfitYearToDate, void, number>(
-    api.analytics.getProfitYearToDate
-  );
+  const profitYearToDate = useQuery(api.analytics.getProfitYearToDate);
 
   return (
     <Card>

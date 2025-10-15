@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useApiQuery } from "@/hooks/use-api";
+import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -22,7 +22,7 @@ interface AuditLog {
 }
 
 export default function AuditLogPage() {
-  const { data: auditLogs = [] } = useApiQuery(api.audit.getAuditLogs) as { data: AuditLog[] };
+  const { data: auditLogs = [] } = useQuery(api.audit.getAuditLogs) as { data: AuditLog[] };
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [actionTypeFilter, setActionTypeFilter] = useState<"all" | AuditLog["actionType"]>("all");
 

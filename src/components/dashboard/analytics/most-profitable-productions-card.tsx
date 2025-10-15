@@ -1,4 +1,4 @@
-import { useApiQuery } from "@/hooks/useApiQuery";
+import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils";
@@ -12,11 +12,10 @@ interface ProfitableProduction {
 }
 
 export function MostProfitableProductionsCard() {
-  const profitableProductions = useApiQuery<
-    typeof api.analytics.getMostProfitableProductions,
-    { limit: number },
-    ProfitableProduction[]
-  >(api.analytics.getMostProfitableProductions, { limit: 5 });
+  const profitableProductions = useQuery(
+    api.analytics.getMostProfitableProductions,
+    { limit: 5 }
+  );
 
   if (profitableProductions === undefined) {
     return <Card><CardHeader><CardTitle>Most Profitable Productions</CardTitle></CardHeader><CardContent>Loading...</CardContent></Card>;

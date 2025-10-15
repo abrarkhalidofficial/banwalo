@@ -10,7 +10,7 @@ import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { toast } from "react-hot-toast";
-import { useApiQuery } from "@/hooks/use-api";
+import { useQuery } from "convex/react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -45,8 +45,8 @@ export default function ClientDetailPage({ params }: { params: { id: string } })
   const router = useRouter();
   const clientId = params.id as Id<"clients">;
   
-  const { data: client } = useApiQuery(api.clients.get, { id: clientId }) as { data: Client | undefined };
-  const { data: productions = [] } = useApiQuery(api.clients.getProductions, { clientId }) as { data: Production[] };
+  const { data: client } = useQuery(api.clients.get, { id: clientId }) as { data: Client | undefined };
+  const { data: productions = [] } = useQuery(api.clients.getProductions, { clientId }) as { data: Production[] };
   const deleteClient = useMutation(api.clients.remove);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
 

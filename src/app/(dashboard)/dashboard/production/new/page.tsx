@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { useApiQuery } from "@/hooks/useApiQuery";
+import { useQuery } from "convex/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -76,8 +76,8 @@ interface ProductionData {
 
 export default function NewProductionPage() {
   const router = useRouter();
-  const { data: clients = [] } = useApiQuery<void, Client[]>(api.clients.list);
-  const { data: materials = [] } = useApiQuery<void, Material[]>(api.materials.list);
+  const { data: clients = [] } = useQuery(api.clients.list);
+  const { data: materials = [] } = useQuery(api.materials.list);
   const createProduction = useMutation(api.productions.create);
 
   // Basic Information

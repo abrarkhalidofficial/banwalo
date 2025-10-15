@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { useApiQuery } from "@/hooks/use-api";
+import { useQuery } from "convex/react";
 import { Id } from "@/convex/_generated/dataModel";
 
 interface Material {
@@ -34,8 +34,8 @@ interface FormData {
 export default function AddStockPage() {
   const router = useRouter();
   const createStockEntry = useMutation(api.stockEntries.create);
-  const materials = useApiQuery<typeof api.materials.list, {}, Material[]>(api.materials.list, {}) || [];
-  const suppliers = useApiQuery<typeof api.suppliers.list, {}, Supplier[]>(api.suppliers.list, {}) || [];
+  const materials = useQuery(api.materials.list) || [];
+  const suppliers = useQuery(api.suppliers.list) || [];
   
   const [formData, setFormData] = useState<FormData>({
     materialId: "",

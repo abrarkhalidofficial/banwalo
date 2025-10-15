@@ -1,6 +1,6 @@
 "use client";
 
-import { useApiQuery } from "@/hooks/useApiQuery";
+import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertTriangle } from "lucide-react";
@@ -15,9 +15,7 @@ interface LowStockEntry {
 
 export function LowStockAlert() {
   const router = useRouter();
-  const stockEntries = useApiQuery<typeof api.stockEntries.getLowStockEntries, void, LowStockEntry[]>(
-    api.stockEntries.getLowStockEntries
-  );
+  const stockEntries = useQuery(api.stockEntries.getLowStockEntries);
 
   if (!stockEntries || stockEntries.length === 0) {
     return null;
