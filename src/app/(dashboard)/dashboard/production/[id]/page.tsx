@@ -6,8 +6,7 @@ import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Edit, Trash2 } from "lucide-react";
+import {  Edit, Trash2 } from "lucide-react";
 import Link from "next/link";
 import React, { useState } from "react";
 import { Id } from "@/convex/_generated/dataModel";
@@ -25,69 +24,16 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-// Helper function to format dates
 const formatDate = (timestamp?: number) => {
   if (!timestamp) return "-";
   return new Date(timestamp).toLocaleDateString();
 };
 
-// Helper function to format currency
 const formatCurrency = (amount: number) => {
   return `PKR ${amount.toFixed(2)}`;
 };
 
-// Define TypeScript interfaces for the production data
-interface Material {
-  _id: Id<"materials">;
-  materialName: string;
-  materialType: string;
-  quantity: number;
-  pricePerUnit: number;
-}
 
-interface Production {
-  _id: Id<"productions">;
-  articleName: string;
-  type: string;
-  clientName: string;
-  totalPieces: number;
-  solidPieces?: number;
-  status: "Planning" | "In Progress" | "Completed" | "Delivered";
-  clientPrice: number;
-  cuttingDate?: number;
-  stitchingDate?: number;
-  notes?: string;
-  
-  // Labor costs
-  cuttingCost: number;
-  overlockedShirtCost: number;
-  overlockedTrouserCost: number;
-  flatShirtCost: number;
-  flatTrouserCost: number;
-  singleShirtCost: number;
-  singleTrouserCost: number;
-  threadingCost: number;
-  
-  // Optional costs
-  printingCost: number;
-  pocketZipCost: number;
-  doryCost: number;
-  fullZipCost: number;
-  elasticCost: number;
-  packingZipperCost: number;
-  packingShopperCost: number;
-  threadCost: number;
-  
-  // Materials
-  materials: Material[];
-  
-  // New fields for overhead calculation and profit
-  overheadCostPerPiece: number;
-  totalOverhead: number;
-  finalTotalCost: number;
-  totalProductionCost: number;
-  profit: number;
-}
 
 export default function ProductionDetailsPage() {
   const router = useRouter();

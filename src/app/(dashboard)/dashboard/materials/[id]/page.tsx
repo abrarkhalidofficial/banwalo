@@ -23,55 +23,23 @@ import { api } from "@/convex/_generated/api";
 import { useQuery } from "convex/react";
 import { Id } from "@/convex/_generated/dataModel";
 
-// Helper function to format dates
 const formatDate = (timestamp?: number) => {
   if (!timestamp) return "-";
   return new Date(timestamp).toLocaleDateString();
 };
 
-// Define types for material and stock entries
-interface Material {
-  _id: Id<"materials">;
-  name: string;
-  category: string;
-  description?: string;
-  unitOfMeasure: string;
-  lowStockThreshold?: number;
-  type: string;
-  createdAt: number;
-  _creationTime: number;
-}
 
-interface StockEntry {
-  _id: Id<"stockEntries">;
-  materialId: Id<"materials">;
-  supplierId: Id<"suppliers">;
-  materialName: string;
-  supplierName: string;
-  quantity: number;
-  remainingQuantity: number;
-  pricePerUnit: number;
-  dateReceived: number;
-  notes?: string;
-}
 
-interface UsageHistory {
-  productionId: Id<"productions">;
-  productionName: string;
-  dateUsed: number;
-  quantity: number;
-  averageCost: number;
-  totalCost: number;
-}
+
 
 export default function MaterialDetailPage() {
   const params = useParams();
   const router = useRouter();
   const materialId = params.id as Id<"materials">;
   
-  const { data: material } = useQuery(api.materials.getById, { id: materialId }) as { data: Material | null };
-  const { data: stockEntries = [] } = useQuery(api.stockEntries.getByMaterial, { materialId }) as { data: StockEntry[] };
-  const { data: usageHistory = [] } = useQuery(api.materials.getMaterialUsageHistory, { materialId }) as { data: UsageHistory[] };
+  const material = useQuery(api.materials.getById, { id: materialId });
+  const  stockEntries  = useQuery(api.stockEntries.getByMaterial, { materialId }) || [];
+  const usageHistory  = useQuery(api.materials.getMaterialUsageHistory, { materialId }) || [];
   const deleteMaterial = useMutation(api.materials.remove);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
 
@@ -101,9 +69,8 @@ export default function MaterialDetailPage() {
     );
   }
 
-  // Calculate total stock
-  const totalStock = stockEntries.reduce((total: number, entry: StockEntry) => total + entry.remainingQuantity, 0);
-  const isLowStock = material.lowStockThreshold && totalStock <= material.lowStockThreshold;
+  const totalStock = stockEntries.reduce((total, entry) => total + entry.remainingQuantity, 0);
+  const isLowStock = material?.lowStockThreshold && totalStock <= material?.lowStockThreshold;
 
   return (
     <div className="p-6">

@@ -6,17 +6,7 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 
-// Define type for consumption record
-interface ConsumptionRecord {
-  _id: Id<"consumptionRecords">;
-  stockEntryId: Id<"stockEntries">;
-  productionId: Id<"productions">;
-  quantityUsed: number;
-  dateConsumed: number;
-  notes?: string;
-}
 
-// Helper function to format date
 const formatDate = (timestamp: number) => {
   return new Date(timestamp).toLocaleDateString('en-US', {
     year: 'numeric',
@@ -55,7 +45,7 @@ export default function ConsumptionLog({ stockEntryId }: { stockEntryId: Id<"sto
               {consumptionLog.map((record) => (
                 <TableRow key={record._id.toString()}>
                   <TableCell>{formatDate(record.dateConsumed)}</TableCell>
-                  <TableCell>{record.productionId.toString()}</TableCell>
+                  <TableCell>{record.productionId?.toString()}</TableCell>
                   <TableCell className="text-right">{record.quantityUsed}</TableCell>
                   <TableCell>{record.notes || "-"}</TableCell>
                 </TableRow>

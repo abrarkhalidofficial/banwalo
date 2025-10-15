@@ -9,22 +9,14 @@ import { Input } from "@/components/ui/input";
 import { PlusCircle, Search } from "lucide-react";
 import { api } from "@/convex/_generated/api";
 import { useQuery } from "convex/react";
-import { Id } from "@/convex/_generated/dataModel";
 
-interface Client {
-  _id: Id<"clients">;
-  name: string;
-  contactInfo: string;
-  address: string;
-  notes?: string;
-}
+
 
 export default function ClientsPage() {
   const router = useRouter();
-  const { data: clients = [] } = useQuery(api.clients.list) as { data: Client[] };
+  const clients = useQuery(api.clients.list) ||[];
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Filter clients based on search query
   const filteredClients = clients.filter(client => 
     client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     client.contactInfo.toLowerCase().includes(searchQuery.toLowerCase()) ||

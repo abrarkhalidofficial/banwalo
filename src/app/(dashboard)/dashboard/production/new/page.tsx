@@ -17,16 +17,6 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { PlusCircle, Trash2, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
-interface Material {
-  _id: Id<"materials">;
-  name: string;
-  type: string;
-}
-
-interface Client {
-  _id: Id<"clients">;
-  name: string;
-}
 
 interface ProductionMaterial {
   materialId: string;
@@ -76,11 +66,10 @@ interface ProductionData {
 
 export default function NewProductionPage() {
   const router = useRouter();
-  const { data: clients = [] } = useQuery(api.clients.list);
-  const { data: materials = [] } = useQuery(api.materials.list);
+  const clients = useQuery(api.clients.list);
+  const  materials = useQuery(api.materials.list);
   const createProduction = useMutation(api.productions.create);
 
-  // Basic Information
   const [client, setClient] = useState<string>("");
   const [articleName, setArticleName] = useState<string>("");
   const [type, setType] = useState<string>("");
@@ -91,7 +80,6 @@ export default function NewProductionPage() {
   const [status, setStatus] = useState<string>("Planning");
   const [notes, setNotes] = useState<string>("");
 
-  // Labor Costs
   const [cuttingCost, setCuttingCost] = useState<string>("");
   const [overlockedShirtCost, setOverlockedShirtCost] = useState<string>("");
   const [overlockedTrouserCost, setOverlockedTrouserCost] = useState<string>("");
@@ -101,12 +89,10 @@ export default function NewProductionPage() {
   const [singleTrouserCost, setSingleTrouserCost] = useState<string>("");
   const [threadingCost, setThreadingCost] = useState<string>("");
 
-  // Materials
   const [productionMaterials, setProductionMaterials] = useState<ProductionMaterial[]>([
     { materialId: "", quantity: "" }
   ]);
 
-  // Optional Costs
   const [printingCost, setPrintingCost] = useState<string>("");
   const [pocketZipCost, setPocketZipCost] = useState<string>("");
   const [doryCost, setDoryCost] = useState<string>("");
@@ -116,22 +102,18 @@ export default function NewProductionPage() {
   const [packingShopperCost, setPackingShopperCost] = useState<string>("");
   const [threadCost, setThreadCost] = useState<string>("");
 
-  // Pricing
   const [clientPrice, setClientPrice] = useState<string>("");
 
-  // Add material row
   const addMaterialRow = () => {
     setProductionMaterials([...productionMaterials, { materialId: "", quantity: "" }]);
   };
 
-  // Remove material row
   const removeMaterialRow = (index: number) => {
     const updatedMaterials = [...productionMaterials];
     updatedMaterials.splice(index, 1);
     setProductionMaterials(updatedMaterials);
   };
 
-  // Update material selection
   const updateMaterial = (index: number, field: keyof ProductionMaterial, value: string) => {
     const updatedMaterials = [...productionMaterials];
     updatedMaterials[index][field] = value;

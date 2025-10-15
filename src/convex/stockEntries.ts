@@ -7,7 +7,6 @@ export const list = query({
   handler: async (ctx) => {
     const stockEntries = await ctx.db.query("stockEntries").collect();
     
-    // Fetch material names for each stock entry
     const stockWithMaterials = await Promise.all(
       stockEntries.map(async (entry) => {
         const material = await ctx.db.get(entry.materialId);
@@ -42,7 +41,6 @@ export const getById = query({
   },
 });
 
-// Previous implementation removed to fix TypeScript errors
 
 export const getBySupplier = query({
   args: { supplierId: v.id("suppliers") },
@@ -52,7 +50,6 @@ export const getBySupplier = query({
       .withIndex("by_supplier", (q) => q.eq("supplierId", args.supplierId))
       .collect();
     
-    // Fetch material names for each stock entry
     const entriesWithMaterials = await Promise.all(
       entries.map(async (entry) => {
         const material = await ctx.db.get(entry.materialId);
@@ -75,7 +72,6 @@ export const getByMaterial = query({
       .withIndex("by_material", (q) => q.eq("materialId", args.materialId))
       .collect();
     
-    // Fetch supplier names for each stock entry
     const entriesWithSuppliers = await Promise.all(
       entries.map(async (entry) => {
         const supplier = await ctx.db.get(entry.supplierId);
@@ -99,7 +95,6 @@ export const getLowStockEntries = query({
     
     const materialsMap = new Map();
     
-    // Get all materials to check thresholds
     const materials = await ctx.db.query("materials").collect();
     materials.forEach(material => {
       if (material.lowStockThreshold !== undefined) {
@@ -107,7 +102,6 @@ export const getLowStockEntries = query({
       }
     });
     
-    // Filter entries that are below threshold
     const lowStockEntries = [];
     
     for (const entry of stockEntries) {
@@ -150,7 +144,6 @@ export const getConsumptionHistory = query({
             }
           } catch (err) {
             console.error("Error fetching production:", err);
-            // Continue with default production name
           }
         }
         
@@ -160,7 +153,6 @@ export const getConsumptionHistory = query({
         });
       }
       
-      // Ensure we handle null values in the sort function
       return enrichedRecords.sort((a, b) => {
         const dateA = a.dateConsumed || 0;
         const dateB = b.dateConsumed || 0;
@@ -168,7 +160,7 @@ export const getConsumptionHistory = query({
       });
     } catch (error) {
       console.error("Error in getConsumptionHistory:", error);
-      return []; // Return empty array on error
+      return []; 
     }
   },
 });
@@ -229,7 +221,6 @@ export const create = mutation({
     remainingQuantity: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    // Validate inputs
     if (args.quantity <= 0) {
       throw new Error("Quantity must be greater than zero");
     }
@@ -237,14 +228,13 @@ export const create = mutation({
       throw new Error("Price per unit must be greater than zero");
     }
     
-    // Create the stock entry with the validated data
     const stockEntryId = await ctx.db.insert("stockEntries", {
       materialId: args.materialId,
       supplierId: args.supplierId,
       quantity: args.quantity,
       pricePerUnit: args.pricePerUnit,
       dateReceived: args.dateReceived,
-      remainingQuantity: args.remainingQuantity ?? args.quantity, // Use provided value or default to quantity
+      remainingQuantity: args.remainingQuantity ?? args.quantity,
     });
 
     const userIdentity = await ctx.auth.getUserIdentity();
@@ -276,7 +266,6 @@ export const consumeStock = mutation({
     notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    // Get the current stock entry
     const stockEntry = await ctx.db.get(args.stockEntryId);
     if (!stockEntry) {
       throw new Error("Stock entry not found");
@@ -289,14 +278,12 @@ export const consumeStock = mutation({
       throw new Error("Not authenticated");
     }
     
-    // Check if there's enough stock
     if (stockEntry.remainingQuantity < args.quantityUsed) {
       throw new Error("Not enough stock remaining");
     }
     
     const beforeValue = stockEntry;
 
-    // Update the remaining quantity
     await ctx.db.patch(args.stockEntryId, {
       remainingQuantity: stockEntry.remainingQuantity - args.quantityUsed,
     });
@@ -312,7 +299,6 @@ export const consumeStock = mutation({
       afterValue: afterValue,
     });
     
-    // Record the consumption
     const consumptionId = await ctx.db.insert("stockConsumption", {
       stockEntryId: args.stockEntryId,
       productionId: args.productionId,

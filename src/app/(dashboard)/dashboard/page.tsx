@@ -14,57 +14,18 @@ import { api } from "@/convex/_generated/api";
 import { Package, Users, ShoppingBag } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { exportToCsv } from "@/lib/export";
-import { Id } from "@/convex/_generated/dataModel";
 
-interface Material {
-  _id: Id<"materials">;
-  name: string;
-  description?: string;
-  unit: string;
-  lowStockThreshold: number;
-}
-
-interface Supplier {
-  _id: Id<"suppliers">;
-  name: string;
-  email: string;
-  phone: string;
-  address?: string;
-}
-
-interface StockEntry {
-  _id: Id<"stockEntries">;
-  materialId: Id<"materials">;
-  supplierId: Id<"suppliers">;
-  quantity: number;
-  remainingQuantity: number;
-  pricePerUnit: number;
-  dateReceived: number;
-  expiryDate?: number;
-  batchNumber?: string;
-}
-
-interface ProfitableProduction {
-  _id: Id<"productions">;
-  articleName: string;
-  clientName: string;
-  profit: number | null;
-}
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { data: materials = [] } = useQuery(api.materials.list) as { data: Material[] };
-  const { data: suppliers = [] } = useQuery(api.suppliers.list) as { data: Supplier[] };
-  const { data: stockEntries = [] } = useQuery(api.stockEntries.list) as { data: StockEntry[] };
-  const { data: mostProfitableProductions = [] } = useQuery(
+  const materials = useQuery(api.materials.list) || [];
+  const suppliers = useQuery(api.suppliers.list) || [];
+  const mostProfitableProductions = useQuery(
     api.analytics.getMostProfitableProductions,
     { limit: 5 }
-  ) as { data: ProfitableProduction[] };
+  ) || [];
   
-  // Calculate total inventory value
-  const totalInventoryValue = stockEntries.reduce((total, entry) => {
-    return total + (entry.remainingQuantity * entry.pricePerUnit);
-  }, 0);
+
   
   const handleExportProfitableProductions = () => {
     if (mostProfitableProductions) {

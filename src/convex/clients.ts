@@ -3,37 +3,14 @@ import { v } from "convex/values";
 import { Id } from "./_generated/dataModel";
 import { api } from "./_generated/api";
 
-// Define TypeScript interfaces for client data
-interface Client {
-  _id: Id<"clients">;
-  name: string;
-  contactInfo: string;
-  address: string;
-  notes?: string;
-  createdAt: number;
-}
 
-interface Production {
-  _id: Id<"productions">;
-  clientId: Id<"clients">;
-  articleName: string;
-  type: string;
-  totalPieces: number;
-  solidPieces?: number;
-  status: string;
-  clientPrice: number;
-  cuttingDate?: number;
-  stitchingDate?: number;
-}
 
-// List all clients
 export const list = query({
   handler: async (ctx) => {
     return await ctx.db.query("clients").collect();
   },
 });
 
-// Get a single client by ID
 export const get = query({
   args: { id: v.id("clients") },
   handler: async (ctx, args) => {
@@ -41,13 +18,13 @@ export const get = query({
   },
 });
 
-// Create a new client
 export const create = mutation({
   args: {
     name: v.string(),
     contactInfo: v.optional(v.string()),
     address: v.optional(v.string()),
     notes: v.optional(v.string()),
+    createdAt: v.number(),
   },
   handler: async (ctx, args) => {
     const userIdentity = await ctx.auth.getUserIdentity();
@@ -62,7 +39,7 @@ export const create = mutation({
       contactInfo: args.contactInfo || "",
       address: args.address || "",
       notes: args.notes,
-      createdAt: Date.now(),
+      createdAt:args.createdAt
     });
 
     const afterValue = await ctx.db.get(clientId);
@@ -79,7 +56,6 @@ export const create = mutation({
   },
 });
 
-// Update an existing client
 export const update = mutation({
   args: {
     id: v.id("clients"),

@@ -14,49 +14,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useQuery } from "convex/react";
 import { toast } from "react-hot-toast";
 
-// Define TypeScript interfaces
-interface Material {
-  _id: Id<"materials">;
-  name: string;
-  type: string;
-  quantity: number;
-  pricePerUnit: number;
-}
 
-interface Client {
-  _id: Id<"clients">;
-  name: string;
-}
 
-interface Production {
-  _id: Id<"productions">;
-  clientId: Id<"clients">;
-  articleName: string;
-  type: string;
-  totalPieces: number;
-  solidPieces?: number;
-  cuttingDate?: number;
-  stitchingDate?: number;
-  status: "Planning" | "In Progress" | "Completed" | "Delivered";
-  clientPrice: number;
-  cuttingCost: number;
-  overlockedShirtCost: number;
-  overlockedTrouserCost: number;
-  flatShirtCost: number;
-  flatTrouserCost: number;
-  singleShirtCost: number;
-  singleTrouserCost: number;
-  threadingCost: number;
-  printingCost: number;
-  pocketZipCost: number;
-  doryCost: number;
-  fullZipCost: number;
-  elasticCost: number;
-  packingZipperCost: number;
-  packingShopperCost: number;
-  threadCost: number;
-  materials: { _id: Id<"materials">; quantity: number }[];
-}
 
 interface FormData {
   clientId: string;

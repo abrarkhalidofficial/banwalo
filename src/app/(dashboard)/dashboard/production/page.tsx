@@ -42,7 +42,6 @@ interface Production {
   threadCost: number;
 }
 
-// Helper function to format dates
 const formatDate = (timestamp?: number) => {
   if (!timestamp) return "-";
   return new Date(timestamp).toLocaleDateString();
@@ -53,13 +52,12 @@ export default function ProductionPage() {
   const productions = useQuery(api.productions.list) || [];
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  // Bulk edit state
   const [editRows, setEditRows] = useState<Production[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [changedRows, setChangedRows] = useState<Record<string, Partial<Production>>>({});
 
   const filteredProductions = useMemo(() => {
-    return productions.filter((production: Production) => {
+    return productions.filter((production) => {
       const matchesSearch = searchQuery
         ? production.articleName.toLowerCase().includes(searchQuery.toLowerCase()) ||
           production.clientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -106,7 +104,6 @@ export default function ProductionPage() {
     });
   };
 
-  // Bulk save handler
   const bulkUpdateProductions = useMutation(api.productions.bulkUpdate);
 
   const handleBulkSave = async () => {

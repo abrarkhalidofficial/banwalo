@@ -10,7 +10,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { toast } from "sonner";
-import { Id } from "@/convex/_generated/dataModel";
 
 interface FormData {
   name: string;
@@ -23,7 +22,6 @@ export default function NewClientPage() {
   const router = useRouter();
   const createClient = useMutation(api.clients.create);
   
-  // Define the current timestamp for client creation
   const currentTimestamp = Date.now();
   
   const [formData, setFormData] = useState<FormData>({

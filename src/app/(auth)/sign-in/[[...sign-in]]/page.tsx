@@ -17,13 +17,10 @@ export default function SignInPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Hardcoded credentials as requested
     if ((username === "Kamran" && password === "hammad") || 
         (username === "Hamza" && password === "hammad")) {
-      // Successful login
       router.push("/dashboard");
     } else {
-      // Failed login
       setError("Invalid username or password");
     }
   };

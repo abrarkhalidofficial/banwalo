@@ -23,30 +23,13 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-interface Client {
-  _id: Id<"clients">;
-  name: string;
-  contactInfo: string;
-  address: string;
-  notes?: string;
-}
-
-interface Production {
-  _id: Id<"productions">;
-  articleName: string;
-  type: string;
-  status: string;
-  totalPieces: number;
-  clientPrice: number;
-  cuttingDate?: number;
-}
 
 export default function ClientDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const clientId = params.id as Id<"clients">;
   
-  const { data: client } = useQuery(api.clients.get, { id: clientId }) as { data: Client | undefined };
-  const { data: productions = [] } = useQuery(api.clients.getProductions, { clientId }) as { data: Production[] };
+  const client = useQuery(api.clients.get, { id: clientId })
+  const productions = useQuery(api.clients.getProductions, { clientId })  ||[];
   const deleteClient = useMutation(api.clients.remove);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
 
@@ -62,10 +45,6 @@ export default function ClientDetailPage({ params }: { params: { id: string } })
     }
   };
 
-  // Helper function to format date
-  const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleDateString();
-  };
 
   if (!client) {
     return (

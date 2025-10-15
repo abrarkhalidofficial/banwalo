@@ -7,7 +7,6 @@ export default defineSchema({
     email: v.string(),
     clerkId: v.string(),
     imageUrl: v.optional(v.string()),
-
   }).index("by_clerk_id", ["clerkId"]),
 
   materials: defineTable({
@@ -15,7 +14,7 @@ export default defineSchema({
     type: v.string(),
     description: v.optional(v.string()),
     createdAt: v.number(),
-    lowStockThreshold: v.optional(v.number()), // Threshold for low stock alerts
+    lowStockThreshold: v.optional(v.number()),
   }),
 
   stockEntries: defineTable({
@@ -61,20 +60,16 @@ export default defineSchema({
   productions: defineTable({
     clientId: v.id("clients"),
     articleName: v.string(),
-    type: v.string(), // Tracksuit, Hoodie, etc.
+    type: v.string(),
     totalPieces: v.number(),
     solidPieces: v.optional(v.number()),
     cuttingDate: v.optional(v.number()),
     stitchingDate: v.optional(v.number()),
-    status: v.string(), // Planning, In Progress, Completed, Delivered
-
-    // New fields for overhead calculation
+    status: v.string(),
     overheadCostPerPiece: v.optional(v.number()),
     totalOverhead: v.optional(v.number()),
     finalTotalCost: v.optional(v.number()),
     profit: v.optional(v.number()),
-
-    // Labor costs (per piece)
     cuttingCost: v.number(),
     overlockedShirtCost: v.number(),
     overlockedTrouserCost: v.number(),
@@ -83,9 +78,7 @@ export default defineSchema({
     singleShirtCost: v.number(),
     singleTrouserCost: v.number(),
     threadingCost: v.number(),
-    clientPrice: v.optional(v.number()), // Made optional
-
-    // Optional costs (per piece)
+    clientPrice: v.optional(v.number()),
     printingCost: v.optional(v.number()),
     pocketZipCost: v.optional(v.number()),
     doryCost: v.optional(v.number()),
@@ -112,12 +105,12 @@ export default defineSchema({
 
   auditLogs: defineTable({
     userId: v.id("users"),
-    actionType: v.string(), // e.g., 'create', 'update', 'delete'
-    entityAffected: v.string(), // e.g., 'materials', 'productions'
-    entityId: v.string(), // ID of the affected document
+    actionType: v.string(),
+    entityAffected: v.string(),
+    entityId: v.string(),
     timestamp: v.number(),
-    beforeValue: v.optional(v.any()), // Snapshot of the document before the change
-    afterValue: v.optional(v.any()), // Snapshot of the document after the change
+    beforeValue: v.optional(v.any()),
+    afterValue: v.optional(v.any()),
   }).index("by_timestamp", ["timestamp"])
     .index("by_user", ["userId"])
     .index("by_entity", ["entityAffected", "entityId"]),
