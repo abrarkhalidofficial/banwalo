@@ -1,0 +1,64 @@
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { endOfMonth, format, startOfMonth, subMonths } from 'date-fns';
+
+import { api } from '@/convex/_generated/api';
+import { useQuery } from 'convex/react';
+
+export function ProductionVolumeChart() {
+  const now = Date.now();
+
+  const oneMonthAgo = subMonths(now, 1);
+
+  const start = startOfMonth(oneMonthAgo).getTime();
+
+  const end = endOfMonth(now).getTime();
+
+  const productions = useQuery(api.analytics.getProductionVolumeOverTime, {
+    start,
+    end,
+  });
+
+  if (productions === undefined) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Production Volume</CardTitle>
+        </CardHeader>
+        <CardContent>Loading...</CardContent>
+      </Card>
+    );
+  }
+
+  const monthlyProduction = productions.reduce(
+    (acc, production) => {
+      const month = format(production._creationTime, 'MMM yyyy');
+      acc[month] = (acc[month] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
+
+  return (
+    <Card className="col-span-1">
+      <CardHeader>
+        <CardTitle>Production Volume (Last Month)</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {Object.keys(monthlyProduction).length > 0 ? (
+          <ul className="space-y-1">
+            {Object.entries(monthlyProduction).map(([month, count]) => (
+              <li key={month} className="text-sm">
+                {month}: {count} productions
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-sm">No productions in the last month.</p>
+        )}
+        <div className="h-[200px] w-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center rounded-md mt-4">
+          <p className="text-muted-foreground">Chart Placeholder</p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
