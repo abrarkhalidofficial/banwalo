@@ -10,38 +10,6 @@ export const list = query({
   },
 });
 
-export const listWithLatestPrices = query({
-  handler: async (ctx) => {
-    const materials = await ctx.db.query('materials').collect();
-    
-    const materialsWithPrices = await Promise.all(
-      materials.map(async (material) => {
-        // Get all stock entries for this material, ordered by date received (most recent first)
-        const stockEntries = await ctx.db
-          .query('stockEntries')
-          .withIndex('by_material', (q) => q.eq('materialId', material._id))
-          .collect();
-        
-        // Find the latest stock entry (most recent dateReceived)
-        let latestPrice = null;
-        if (stockEntries.length > 0) {
-          const latestEntry = stockEntries.reduce((latest, current) => 
-            current.dateReceived > latest.dateReceived ? current : latest
-          );
-          latestPrice = latestEntry.pricePerUnit;
-        }
-        
-        return {
-          ...material,
-          latestPrice,
-        };
-      })
-    );
-    
-    return materialsWithPrices;
-  },
-});
-
 export const getById = query({
   args: { id: v.id('materials') },
   handler: async (ctx, args) => {
@@ -53,60 +21,67 @@ export const getMaterialUsageHistory = query({
   args: { materialId: v.id('materials') },
   handler: async (ctx, args) => {
     try {
-      const stockEntries = await ctx.db
-        .query('stockEntries')
+      const consumptionRecords = await ctx.db
+        .query('materialConsumptions')
         .withIndex('by_material', (q) => q.eq('materialId', args.materialId))
         .collect();
 
-      if (!stockEntries.length) return [];
-
-      const stockEntryIds = stockEntries.map((entry) => entry._id);
-
-      const consumptionRecords = [];
-      for (const stockEntryId of stockEntryIds) {
-        const records = await ctx.db
-          .query('stockConsumption')
-          .withIndex('by_stock_entry', (q) => q.eq('stockEntryId', stockEntryId))
-          .collect();
-
-        consumptionRecords.push(...records);
+      if (consumptionRecords.length === 0) {
+        return [];
       }
 
-      const productionMap = new Map();
+      const enrichedRecords = [];
+      const ordersById = new Map();
+      const stockEntriesById = new Map();
 
       for (const record of consumptionRecords) {
-        const prodId = record.productionId;
-        if (!prodId) continue;
-
-        if (!productionMap.has(prodId.toString())) {
-          const production = await ctx.db.get(prodId);
-          if (!production) continue;
-
-          productionMap.set(prodId.toString(), {
-            productionId: prodId,
-            productionName: production.articleName || 'Unknown Production',
-            dateUsed: record.dateConsumed || Date.now(),
-            totalQuantity: 0,
-            totalCost: 0,
-          });
+        if (!ordersById.has(record.productionOrderId.toString())) {
+          const order = await ctx.db.get(record.productionOrderId);
+          if (order) {
+            const client = await ctx.db.get(order.clientId);
+            ordersById.set(record.productionOrderId.toString(), {
+              order,
+              clientName: client?.name || 'Unknown Client',
+            });
+          }
         }
 
-        const entry = productionMap.get(prodId.toString());
-        entry.totalQuantity += record.quantityUsed || 0;
-        entry.totalCost += (record.quantityUsed || 0) * (record.pricePerUnit || 0);
-
-        if (record.dateConsumed && record.dateConsumed < entry.dateUsed) {
-          entry.dateUsed = record.dateConsumed;
+        if (!stockEntriesById.has(record.stockEntryId.toString())) {
+          const stockEntry = await ctx.db.get(record.stockEntryId);
+          if (stockEntry) {
+            const supplier = await ctx.db.get(stockEntry.supplierId);
+            stockEntriesById.set(record.stockEntryId.toString(), {
+              stockEntry,
+              supplierName: supplier?.name || 'Unknown Supplier',
+            });
+          }
         }
       }
 
-      const usageHistory = Array.from(productionMap.values()).map((entry) => ({
-        ...entry,
-        quantity: entry.totalQuantity,
-        averageCost: entry.totalQuantity > 0 ? entry.totalCost / entry.totalQuantity : 0,
-      }));
+      for (const record of consumptionRecords) {
+        const orderData = ordersById.get(record.productionOrderId.toString());
+        const stockData = stockEntriesById.get(record.stockEntryId.toString());
 
-      return usageHistory.sort((a, b) => b.dateUsed - a.dateUsed);
+        enrichedRecords.push({
+          ...record,
+          productionOrderArticle: orderData?.order?.articleName || 'Unknown',
+          productionOrderType: orderData?.order?.type || 'Unknown',
+          clientName: orderData?.clientName,
+          totalPieces: orderData?.order?.totalPieces,
+          status: orderData?.order?.status,
+          supplierName: stockData?.supplierName,
+          stockEntryDate: stockData?.stockEntry?.dateReceived,
+          stockEntryPricePerUnit: stockData?.stockEntry?.pricePerUnit,
+          quantity: record.quantityConsumed,
+          totalCost: record.totalCost,
+          dateUsed: record.consumedAt,
+          productionId: record.productionOrderId,
+          productionName: orderData?.order?.articleName || 'Unknown',
+          averageCost: record.pricePerUnit,
+        });
+      }
+
+      return enrichedRecords.sort((a, b) => b.consumedAt - a.consumedAt);
     } catch (error) {
       console.error('Error in getMaterialUsageHistory:', error);
       return [];
@@ -118,7 +93,6 @@ export const create = mutation({
   args: {
     name: v.string(),
     type: v.string(),
-    unit: v.optional(v.string()),
     description: v.optional(v.string()),
     lowStockThreshold: v.optional(v.number()),
   },
@@ -126,7 +100,6 @@ export const create = mutation({
     const materialId = await ctx.db.insert('materials', {
       name: args.name,
       type: args.type,
-      unit: args.unit,
       description: args.description,
       lowStockThreshold: args.lowStockThreshold,
       createdAt: Date.now(),
@@ -152,7 +125,6 @@ export const update = mutation({
     id: v.id('materials'),
     name: v.string(),
     type: v.string(),
-    unit: v.optional(v.string()),
     description: v.optional(v.string()),
     lowStockThreshold: v.optional(v.number()),
   },
@@ -165,7 +137,6 @@ export const update = mutation({
     await ctx.db.patch(args.id, {
       name: args.name,
       type: args.type,
-      unit: args.unit,
       description: args.description,
       lowStockThreshold: args.lowStockThreshold,
     });

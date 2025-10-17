@@ -14,8 +14,8 @@ export function formatDate(timestamp: number): string {
 }
 
 export function formatCurrency(amount: number) {
-  return new Intl.NumberFormat('en-PK', {
+  return new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency: 'PKR',
+    currency: 'INR',
   }).format(amount);
 }

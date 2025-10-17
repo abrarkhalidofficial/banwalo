@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { endOfMonth, format, startOfMonth, subMonths } from 'date-fns';
+import { endOfMonth, startOfMonth, subMonths } from 'date-fns';
 
 import { api } from '@/convex/_generated/api';
 import { useQuery } from 'convex/react';
@@ -31,8 +31,8 @@ export function ProductionVolumeChart() {
 
   const monthlyProduction = productions.reduce(
     (acc, production) => {
-      const month = format(production._creationTime, 'MMM yyyy');
-      acc[month] = (acc[month] || 0) + 1;
+      const month = production.month;
+      acc[month] = (acc[month] || 0) + production.count;
       return acc;
     },
     {} as Record<string, number>,

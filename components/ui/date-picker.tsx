@@ -10,13 +10,13 @@ import { Calendar as CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 
-interface DatePickerProps {
+type DatePickerProps = {
   date?: Date | undefined;
   setDate?: (date: Date | undefined) => void;
   selected?: Date | undefined;
   onSelect?: (date: Date | undefined) => void;
   placeholder?: string;
-}
+};
 
 export function DatePicker(props: DatePickerProps) {
   const date = props.date ?? props.selected;

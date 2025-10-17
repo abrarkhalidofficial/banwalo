@@ -2,7 +2,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { endOfMonth, format, startOfMonth, subMonths } from 'date-fns';
 
 import { api } from '@/convex/_generated/api';
-import { formatCurrency } from '@/lib/utils';
 import { useQuery } from 'convex/react';
 
 export function ExpenseTrendsChart() {
@@ -37,7 +36,7 @@ export function ExpenseTrendsChart() {
         <ul>
           {expenses.map((expense) => (
             <li key={expense._id.toString()}>
-              {format(expense._creationTime, 'MMM dd, yyyy')}: {formatCurrency(expense.amount)}
+              {format(expense._creationTime, 'MMM dd, yyyy')}: {expense.amount}
             </li>
           ))}
         </ul>

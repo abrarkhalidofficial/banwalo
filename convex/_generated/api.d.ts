@@ -13,10 +13,10 @@ import type * as audit from "../audit.js";
 import type * as clients from "../clients.js";
 import type * as ledger from "../ledger.js";
 import type * as materials from "../materials.js";
+import type * as productionOrders from "../productionOrders.js";
 import type * as productions from "../productions.js";
 import type * as stockEntries from "../stockEntries.js";
 import type * as suppliers from "../suppliers.js";
-import type * as testing from "../testing.js";
 import type * as user from "../user.js";
 
 import type {
@@ -39,10 +39,10 @@ declare const fullApi: ApiFromModules<{
   clients: typeof clients;
   ledger: typeof ledger;
   materials: typeof materials;
+  productionOrders: typeof productionOrders;
   productions: typeof productions;
   stockEntries: typeof stockEntries;
   suppliers: typeof suppliers;
-  testing: typeof testing;
   user: typeof user;
 }>;
 declare const fullApiWithMounts: typeof fullApi;

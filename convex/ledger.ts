@@ -16,7 +16,13 @@ export const createExpense = mutation({
       throw new Error('Not authenticated');
     }
 
-    const expenseId = await ctx.db.insert('expenses', { ...args });
+    const expenseId = await ctx.db.insert('expenses', {
+      date: args.date,
+      category: args.category,
+      amount: args.amount,
+      note: args.note,
+      userId: args.userId,
+    });
 
     const afterValue = await ctx.db.get(expenseId);
 
@@ -42,9 +48,9 @@ export const updateExpense = mutation({
     userId: v.id('users'),
   },
   handler: async (ctx, args) => {
-    const { id, ...updates } = args;
+    const { id, userId, ...updates } = args;
 
-    if (!args.userId) {
+    if (!userId) {
       throw new Error('Not authenticated');
     }
 
@@ -61,7 +67,7 @@ export const updateExpense = mutation({
     const afterValue = await ctx.db.get(id);
 
     await ctx.runMutation(api.audit.createAuditLog, {
-      userId: args.userId,
+      userId: userId,
       actionType: 'update',
       entityAffected: 'expenses',
       entityId: String(id),

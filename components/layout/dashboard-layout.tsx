@@ -10,16 +10,7 @@ import { ReactNode } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { usePathname } from 'next/navigation';
 
-interface DashboardLayoutProps {
-  children: ReactNode;
-}
-
-interface NavigationItem {
-  name: string;
-  href: string;
-}
-
-const navigationItems: NavigationItem[] = [
+const navigationItems = [
   { name: 'Dashboard', href: '/dashboard' },
   { name: 'Materials', href: '/dashboard/materials' },
   { name: 'Production', href: '/dashboard/production' },
@@ -29,7 +20,7 @@ const navigationItems: NavigationItem[] = [
   { name: 'Analytics', href: '/dashboard/analytics' },
 ];
 
-export function DashboardLayout({ children }: DashboardLayoutProps) {
+export function DashboardLayout({ children }: { children: ReactNode }) {
   const isMobile = useIsMobile();
 
   const pathname = usePathname();

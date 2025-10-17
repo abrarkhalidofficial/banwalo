@@ -7,20 +7,30 @@ export const list = query({
   handler: async (ctx) => {
     const stockEntries = await ctx.db.query('stockEntries').collect();
 
-    const stockWithMaterials = await Promise.all(
-      stockEntries.map(async (entry) => {
-        const material = await ctx.db.get(entry.materialId);
-        const supplier = await ctx.db.get(entry.supplierId);
-        return {
-          ...entry,
-          materialName: material?.name || 'Unknown Material',
-          supplierName: supplier?.name || 'Unknown Supplier',
-          material,
-        };
-      }),
-    );
+    const materialsById = new Map();
+    const suppliersById = new Map();
 
-    return stockWithMaterials;
+    for (const entry of stockEntries) {
+      if (!materialsById.has(entry.materialId.toString())) {
+        const material = await ctx.db.get(entry.materialId);
+        materialsById.set(entry.materialId.toString(), material);
+      }
+      if (!suppliersById.has(entry.supplierId.toString())) {
+        const supplier = await ctx.db.get(entry.supplierId);
+        suppliersById.set(entry.supplierId.toString(), supplier);
+      }
+    }
+
+    return stockEntries.map((entry) => {
+      const material = materialsById.get(entry.materialId.toString());
+      const supplier = suppliersById.get(entry.supplierId.toString());
+      return {
+        ...entry,
+        materialName: material?.name || 'Unknown Material',
+        supplierName: supplier?.name || 'Unknown Supplier',
+        material,
+      };
+    });
   },
 });
 
@@ -50,17 +60,21 @@ export const getBySupplier = query({
       .withIndex('by_supplier', (q) => q.eq('supplierId', args.supplierId))
       .collect();
 
-    const entriesWithMaterials = await Promise.all(
-      entries.map(async (entry) => {
+    const materialsById = new Map();
+    for (const entry of entries) {
+      if (!materialsById.has(entry.materialId.toString())) {
         const material = await ctx.db.get(entry.materialId);
-        return {
-          ...entry,
-          materialName: material?.name || 'Unknown Material',
-        };
-      }),
-    );
+        materialsById.set(entry.materialId.toString(), material);
+      }
+    }
 
-    return entriesWithMaterials;
+    return entries.map((entry) => {
+      const material = materialsById.get(entry.materialId.toString());
+      return {
+        ...entry,
+        materialName: material?.name || 'Unknown Material',
+      };
+    });
   },
 });
 
@@ -72,17 +86,21 @@ export const getByMaterial = query({
       .withIndex('by_material', (q) => q.eq('materialId', args.materialId))
       .collect();
 
-    const entriesWithSuppliers = await Promise.all(
-      entries.map(async (entry) => {
+    const suppliersById = new Map();
+    for (const entry of entries) {
+      if (!suppliersById.has(entry.supplierId.toString())) {
         const supplier = await ctx.db.get(entry.supplierId);
-        return {
-          ...entry,
-          supplierName: supplier?.name || 'Unknown Supplier',
-        };
-      }),
-    );
+        suppliersById.set(entry.supplierId.toString(), supplier);
+      }
+    }
 
-    return entriesWithSuppliers;
+    return entries.map((entry) => {
+      const supplier = suppliersById.get(entry.supplierId.toString());
+      return {
+        ...entry,
+        supplierName: supplier?.name || 'Unknown Supplier',
+      };
+    });
   },
 });
 
@@ -94,7 +112,6 @@ export const getLowStockEntries = query({
       .collect();
 
     const materialsMap = new Map();
-
     const materials = await ctx.db.query('materials').collect();
     materials.forEach((material) => {
       if (material.lowStockThreshold !== undefined) {
@@ -102,13 +119,18 @@ export const getLowStockEntries = query({
       }
     });
 
+    const suppliersById = new Map();
     const lowStockEntries = [];
 
     for (const entry of stockEntries) {
       const material = materialsMap.get(entry.materialId);
       if (material && material.lowStockThreshold && entry.remainingQuantity <= material.lowStockThreshold) {
-        const supplier = await ctx.db.get(entry.supplierId);
+        if (!suppliersById.has(entry.supplierId.toString())) {
+          const supplier = await ctx.db.get(entry.supplierId);
+          suppliersById.set(entry.supplierId.toString(), supplier);
+        }
 
+        const supplier = suppliersById.get(entry.supplierId.toString());
         lowStockEntries.push({
           ...entry,
           materialName: material.name,
@@ -127,39 +149,45 @@ export const getConsumptionHistory = query({
   handler: async (ctx, args) => {
     try {
       const consumptionRecords = await ctx.db
-        .query('stockConsumption')
+        .query('materialConsumptions')
         .withIndex('by_stock_entry', (q) => q.eq('stockEntryId', args.stockEntryId))
         .collect();
 
+      if (consumptionRecords.length === 0) {
+        return [];
+      }
+
       const enrichedRecords = [];
+      const ordersById = new Map();
 
       for (const record of consumptionRecords) {
-        let productionName = 'Production';
-
-        if (record.productionId) {
-          try {
-            const production = await ctx.db.get(record.productionId);
-            if (production) {
-              productionName = production.articleName || 'Production';
-            }
-          } catch (err) {
-            console.error('Error fetching production:', err);
+        if (!ordersById.has(record.productionOrderId.toString())) {
+          const order = await ctx.db.get(record.productionOrderId);
+          if (order) {
+            const client = await ctx.db.get(order.clientId);
+            ordersById.set(record.productionOrderId.toString(), {
+              order,
+              clientName: client?.name || 'Unknown Client',
+            });
           }
         }
 
+        const orderData = ordersById.get(record.productionOrderId.toString());
+
         enrichedRecords.push({
           ...record,
-          productionName,
-          dateUsed: record.dateConsumed,
-          cost: (record.quantityUsed || 0) * (record.pricePerUnit || 0),
+          productionOrderArticle: orderData?.order?.articleName || 'Unknown',
+          clientName: orderData?.clientName,
+          dateUsed: record.consumedAt,
+          cost: record.totalCost,
+          productionId: record.productionOrderId,
+          productionName: orderData?.order?.articleName || 'Unknown',
+          quantityUsed: record.quantityConsumed,
+          dateConsumed: record.consumedAt,
         });
       }
 
-      return enrichedRecords.sort((a, b) => {
-        const dateA = a.dateConsumed || 0;
-        const dateB = b.dateConsumed || 0;
-        return dateB - dateA;
-      });
+      return enrichedRecords.sort((a, b) => b.consumedAt - a.consumedAt);
     } catch (error) {
       console.error('Error in getConsumptionHistory:', error);
       return [];
@@ -260,49 +288,38 @@ export const create = mutation({
 export const consumeStock = mutation({
   args: {
     stockEntryId: v.id('stockEntries'),
+    productionId: v.id('productionOrders'),
     quantityUsed: v.number(),
-    productionId: v.optional(v.id('productions')),
     notes: v.optional(v.string()),
     userId: v.id('users'),
   },
   handler: async (ctx, args) => {
+    if (!args.userId) {
+      throw new Error('Not authenticated');
+    }
+
     const stockEntry = await ctx.db.get(args.stockEntryId);
     if (!stockEntry) {
       throw new Error('Stock entry not found');
     }
 
-    if (!args.userId) {
-      throw new Error('Not authenticated');
+    if (args.quantityUsed > stockEntry.remainingQuantity) {
+      throw new Error('Not enough stock to consume');
     }
 
-    if (stockEntry.remainingQuantity < args.quantityUsed) {
-      throw new Error('Not enough stock remaining');
-    }
-
-    const beforeValue = stockEntry;
+    const consumptionId = await ctx.db.insert('materialConsumptions', {
+      productionOrderId: args.productionId,
+      materialId: stockEntry.materialId,
+      stockEntryId: args.stockEntryId,
+      quantityConsumed: args.quantityUsed,
+      pricePerUnit: stockEntry.pricePerUnit,
+      totalCost: args.quantityUsed * stockEntry.pricePerUnit,
+      consumedAt: Date.now(),
+      notes: args.notes,
+    });
 
     await ctx.db.patch(args.stockEntryId, {
       remainingQuantity: stockEntry.remainingQuantity - args.quantityUsed,
-    });
-
-    const afterValue = await ctx.db.get(args.stockEntryId);
-
-    await ctx.runMutation(api.audit.createAuditLog, {
-      userId: args.userId,
-      actionType: 'consume',
-      entityAffected: 'stockEntries',
-      entityId: String(args.stockEntryId),
-      beforeValue: beforeValue,
-      afterValue: afterValue,
-    });
-
-    const consumptionId = await ctx.db.insert('stockConsumption', {
-      stockEntryId: args.stockEntryId,
-      productionId: args.productionId,
-      quantityUsed: args.quantityUsed,
-      pricePerUnit: stockEntry.pricePerUnit,
-      dateConsumed: Date.now(),
-      notes: args.notes,
     });
 
     return consumptionId;

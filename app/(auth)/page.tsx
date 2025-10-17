@@ -2,6 +2,7 @@
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useTransition } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,7 +10,6 @@ import { Label } from '@/components/ui/label';
 import { api } from '@/convex/_generated/api';
 import { useMutation } from 'convex/react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
 
 export default function SignInPage() {
   const signIn = useMutation(api.user.signIn);
@@ -22,19 +22,23 @@ export default function SignInPage() {
 
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const [isPending, startTransition] = useTransition();
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const user = await signIn({ username, password });
-    if (user) {
-      document.cookie = `userId=${user.id}; path=/`;
+    startTransition(async () => {
+      const user = await signIn({ username, password });
+      if (user) {
+        document.cookie = `userId=${user.id}; path=/`;
 
-      setTimeout(() => {
-        router.push('/dashboard');
-      }, 100);
-    } else {
-      setError('Invalid username or password');
-    }
+        setTimeout(() => {
+          router.push('/dashboard');
+        }, 100);
+      } else {
+        setError('Invalid username or password');
+      }
+    });
   };
 
   return (
@@ -59,8 +63,8 @@ export default function SignInPage() {
               <Label htmlFor="password">Password</Label>
               <Input id="password" name="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
             </div>
-            <Button type="submit" className="w-full">
-              Sign In
+            <Button disabled={isPending} type="submit" className="w-full">
+              {isPending ? 'Signing in...' : 'Sign In'}
             </Button>
           </form>
         </CardContent>

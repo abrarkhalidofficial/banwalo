@@ -126,7 +126,7 @@ export const getProductions = query({
   args: { clientId: v.id('clients') },
   handler: async (ctx, args) => {
     return await ctx.db
-      .query('productions')
+      .query('productionOrders')
       .withIndex('by_client', (q) => q.eq('clientId', args.clientId))
       .collect();
   },
