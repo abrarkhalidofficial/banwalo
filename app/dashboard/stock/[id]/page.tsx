@@ -10,6 +10,7 @@ import ConsumptionLog from '@/components/dashboard/consumption-log';
 import { Id } from '@/convex/_generated/dataModel';
 import { api } from '@/convex/_generated/api';
 import { useQuery } from 'convex/react';
+import { formatCurrency } from '@/lib/utils';
 
 const formatDate = (timestamp: number) => {
   return new Date(timestamp).toLocaleDateString('en-US', {
@@ -106,15 +107,15 @@ export default function StockEntryDetailPage() {
               </div>
               <div className="py-3 grid grid-cols-3">
                 <dt className="text-sm font-medium text-gray-500">Price Per Unit</dt>
-                <dd className="text-sm text-gray-900 col-span-2">₹{(stockEntry.pricePerUnit ?? 0).toFixed(2)}</dd>
+                <dd className="text-sm text-gray-900 col-span-2">{formatCurrency(stockEntry.pricePerUnit ?? 0)}</dd>
               </div>
               <div className="py-3 grid grid-cols-3">
                 <dt className="text-sm font-medium text-gray-500">Total Value</dt>
-                <dd className="text-sm text-gray-900 col-span-2">₹{(stockEntry.quantity * (stockEntry.pricePerUnit ?? 0)).toFixed(2)}</dd>
+                <dd className="text-sm text-gray-900 col-span-2">{formatCurrency(stockEntry.quantity * (stockEntry.pricePerUnit ?? 0))}</dd>
               </div>
               <div className="py-3 grid grid-cols-3">
                 <dt className="text-sm font-medium text-gray-500">Remaining Value</dt>
-                <dd className="text-sm text-gray-900 col-span-2">₹{(stockEntry.remainingQuantity * (stockEntry.pricePerUnit ?? 0)).toFixed(2)}</dd>
+                <dd className="text-sm text-gray-900 col-span-2">{formatCurrency(stockEntry.remainingQuantity * (stockEntry.pricePerUnit ?? 0))}</dd>
               </div>
             </dl>
           </CardContent>
@@ -200,7 +201,7 @@ export default function StockEntryDetailPage() {
                     <TableCell className="font-medium">{usage.productionName}</TableCell>
                     <TableCell>{formatDate(usage.dateUsed)}</TableCell>
                     <TableCell>{usage.quantityUsed}</TableCell>
-                    <TableCell>₹{usage.cost.toFixed(2)}</TableCell>
+                    <TableCell>{formatCurrency(usage.cost)}</TableCell>
                   </TableRow>
                 ))
               )}

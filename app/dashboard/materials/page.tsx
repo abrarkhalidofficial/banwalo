@@ -12,6 +12,7 @@ import { api } from '@/convex/_generated/api';
 import { useQuery } from 'convex/react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { formatCurrency } from '@/lib/utils';
 
 export default function MaterialsPage() {
   const router = useRouter();
@@ -156,7 +157,8 @@ export default function MaterialsPage() {
                         <TableCell>{entry.supplierName}</TableCell>
                         <TableCell>{entry.remainingQuantity} units</TableCell>
                         <TableCell>{entry.quantity} units</TableCell>
-                        <TableCell>₹{entry.pricePerUnit}</TableCell>
+-                       <TableCell>₹{entry.pricePerUnit}</TableCell>
++                       <TableCell>{formatCurrency(entry.pricePerUnit)}</TableCell>
                         <TableCell>{formatDate(entry.dateReceived)}</TableCell>
                         <TableCell>
                           <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusStyles(getStockStatus(entry))}`}>{getStockStatus(entry)}</span>

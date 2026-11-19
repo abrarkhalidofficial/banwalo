@@ -34,9 +34,9 @@ export function ExpenseTrendsChart() {
       <CardContent>
         <p>Expense data for the last month:</p>
         <ul>
-          {expenses.map((expense) => (
-            <li key={expense._id.toString()}>
-              {format(expense._creationTime, 'MMM dd, yyyy')}: {expense.amount}
+          {expenses.map((expense, i) => (
+            <li key={`${expense.date}-${expense.category}-${i}`}>
+              {format(new Date(expense.date), 'MMM dd, yyyy')}: {expense.amount}
             </li>
           ))}
         </ul>

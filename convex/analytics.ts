@@ -374,3 +374,98 @@ export const getProfitYearToDate = query({
     return totalProfit;
   },
 });
+
+export const getClientProfitSummary = query({
+  args: {
+    clientId: v.id('clients'),
+    start: v.optional(v.number()),
+    end: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const clientOrders = await ctx.db
+      .query('productionOrders')
+      .withIndex('by_client', (q) => q.eq('clientId', args.clientId))
+      .collect();
+
+    const filteredOrders = clientOrders.filter((o) => {
+      const created = o.createdAt;
+      if (args.start && created < args.start) return false;
+      if (args.end && created > args.end) return false;
+      return true;
+    });
+
+    const allOrders = await ctx.db.query('productionOrders').collect();
+    const allExpenses = await ctx.db.query('expenses').collect();
+
+    let totalRevenue = 0;
+    let totalMaterialCost = 0;
+    let totalLaborCost = 0;
+    let totalOptionalCosts = 0;
+    let totalAllocatedExpense = 0;
+
+    for (const order of filteredOrders) {
+      const consumptions = await ctx.db
+        .query('materialConsumptions')
+        .withIndex('by_production_order', (q) => q.eq('productionOrderId', order._id))
+        .collect();
+      const materialCost = consumptions.reduce((sum, c) => sum + c.totalCost, 0);
+      totalMaterialCost += materialCost;
+
+      const laborCostPerUnit =
+        (order.cuttingCost || 0) +
+        (order.overlockedShirtCost || 0) +
+        (order.overlockedTrouserCost || 0) +
+        (order.flatShirtCost || 0) +
+        (order.flatTrouserCost || 0) +
+        (order.singleShirtCost || 0) +
+        (order.singleTrouserCost || 0) +
+        (order.threadingCost || 0);
+      totalLaborCost += laborCostPerUnit * order.totalPieces;
+
+      const optionalCosts =
+        (order.printingCost || 0) +
+        (order.pocketZipCost || 0) +
+        (order.doryCost || 0) +
+        (order.fullZipCost || 0) +
+        (order.elasticCost || 0) +
+        (order.packingZipperCost || 0) +
+        (order.packingShopperCost || 0) +
+        (order.threadCost || 0);
+      totalOptionalCosts += optionalCosts;
+
+      const orderDate = new Date(order.createdAt);
+      const monthStart = new Date(orderDate.getFullYear(), orderDate.getMonth(), 1);
+      const monthEnd = new Date(orderDate.getFullYear(), orderDate.getMonth() + 1, 0, 23, 59, 59, 999);
+
+      const expensesThisMonth = allExpenses.filter(
+        (e) => e.date >= monthStart.getTime() && e.date <= monthEnd.getTime()
+      );
+      const totalExpensesThisMonth = expensesThisMonth.reduce((sum, e) => sum + e.amount, 0);
+
+      const ordersThisMonth = allOrders.filter(
+        (o) => o.createdAt >= monthStart.getTime() && o.createdAt <= monthEnd.getTime()
+      );
+      const allocatedExpense = ordersThisMonth.length > 0 ? totalExpensesThisMonth / ordersThisMonth.length : 0;
+      totalAllocatedExpense += allocatedExpense;
+
+      const revenue = (order.clientPrice || 0) * order.totalPieces;
+      totalRevenue += revenue;
+    }
+
+    const totalProfit =
+      totalRevenue - totalMaterialCost - totalLaborCost - totalOptionalCosts - totalAllocatedExpense;
+
+    return {
+      clientId: args.clientId,
+      ordersCount: filteredOrders.length,
+      totalRevenue,
+      totalMaterialCost,
+      totalLaborCost,
+      totalOptionalCosts,
+      totalAllocatedExpense,
+      totalProfit,
+      start: args.start,
+      end: args.end,
+    };
+  },
+});

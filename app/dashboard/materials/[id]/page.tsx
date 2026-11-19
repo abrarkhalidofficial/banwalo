@@ -23,9 +23,10 @@ import { toast } from 'react-hot-toast';
 import { useMutation } from 'convex/react';
 import { useQuery } from 'convex/react';
 import { useState } from 'react';
+import { formatCurrency } from '@/lib/utils';
 
 const formatDate = (timestamp?: number) => {
-  if (!timestamp) return '-';
+  if (!timestamp) return "-";
   return new Date(timestamp).toLocaleDateString();
 };
 
@@ -198,8 +199,8 @@ export default function MaterialDetailPage() {
                     <TableCell className="font-medium">{usage.productionName}</TableCell>
                     <TableCell>{formatDate(usage.dateUsed)}</TableCell>
                     <TableCell>{usage.quantity}</TableCell>
-                    <TableCell>₹{(usage.averageCost || 0).toFixed(2)}/unit</TableCell>
-                    <TableCell>₹{(usage.totalCost || 0).toFixed(2)}</TableCell>
+                    <TableCell>{formatCurrency(usage.averageCost || 0)}/unit</TableCell>
+                    <TableCell>{formatCurrency(usage.totalCost || 0)}</TableCell>
                   </TableRow>
                 ))
               )}
